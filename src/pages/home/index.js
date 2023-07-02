@@ -1,30 +1,33 @@
-import { useState } from "react"; 
+import { useState } from "react";
 import { Header } from "../../components/Header";
 import background from "../../assets/background.png";
 import ItemList from "../../components/ItemList";
 import "./styles.css";
 
 function App() {
-  const [user, setUser] = useState('');
+  const [user, setUser] = useState("");
   const [currentuUser, setCurrentUser] = useState(null);
   const [repos, setRepos] = useState(null);
 
-  const handleGetData = async () =>{
-    const userData = await fetch('https://api.github.com/users/${user}');
+  const handleGetData = async () => {
+    const userData = await fetch(`https://api.github.com/users/${user}`);
     const newUser = await userData.json();
 
-    if(newUser.name){
-      const {avatar_url, name, bio} = newUser;
-      setCurrentUser({ avatar_url, name, bio });
-    
-      const reposData = await fetch("https://api.github.com/users/${user}/repos");
+    if (newUser.name) {
+      const { avatar_url, name, bio, login } = newUser;
+      setCurrentUser({ avatar_url, name, bio, login });
+
+      const reposData = await fetch(
+        `https://api.github.com/users/${user}/repos`
+      );
       const newRepos = await reposData.json();
 
-      if(newRepos.lenght){
+      if (newRepos.length !== 0) {
         setRepos(newRepos);
       }
+      
     }
-  }
+  };
 
   return (
     <div className="App">
@@ -45,29 +48,27 @@ function App() {
             <>
               <div className="perfil">
                 <img
-                  src="https://avatars.githubusercontent.com/u/84539855?v=4"
+                  src={currentuUser.avatar_url}
                   className="profile"
                   alt="imagem de perfil"
                 />
                 <div>
-                  <h3>Diego Abenicio</h3>
-                  <span>@diegoabenicio</span>
-                  <p>
-                    I am seeking a professional opportunity that allows for my
-                    intellectual, professional, and technical growth, so that I
-                    can contribute to the company for a long
-                  </p>
+                  <h3>{currentuUser.name}</h3>
+                  <span>@{currentuUser.login}</span>
+                  <p>{currentuUser.bio}</p>
                 </div>
               </div>
               <hr />
             </>
           ) : null}
-          {repos?.lenght ? (
+          {repos?.length ? (
             <div>
               <h4 className="repositorio">Repositorios</h4>
-              <ItemList title="Teste 1" description="descripiton" />
+              {repos.map((repo) => (
+                <ItemList title={repo.name} description={repo.description} />
+              ))}
             </div>
-          ): null}
+          ) : null}
         </div>
       </div>
     </div>
